@@ -39,7 +39,6 @@ void send_ip(void * pvParameters) {
 boolean wifi_connect(){ 
     file.begin("device_config",false);
     WiFi.mode(WIFI_STA);
-    Serial.println("Here");
     if(file.getBool("enterprise"),false){ //check if WiFi network was an enterprise network.
         Serial.println("\nConnecting to Enterprise Network\n");
         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)file.getString("wifi_username","").c_str(), strlen(file.getString("wifi_username","").c_str()));
@@ -56,6 +55,7 @@ boolean wifi_connect(){
 
     
     else{
+        Serial.println("Connecting to non-enterprise WiFi network...");
         WiFi.begin(file.getString("ssid",""),file.getString("password",""));
     }
     
@@ -66,12 +66,15 @@ boolean wifi_connect(){
             test_count++;
             if(count % 65536 == 0) Serial.print(".");
             if(test_count>254){
+                Serial.println("WiFi connection timeout.");
+                file.end();
                 return false; //Time-out
             }
         }
         count++;
     }
     file.end();
+    Serial.println("WiFi connected.");
     return true;
 }
 
@@ -149,6 +152,7 @@ void send_heartbeat(void * pvParameters){
 boolean connect_backend(){
 
     if(!wifi_connect()){
+        Serial.println("WiFi not connected, connecting to wifi....");
         return false;
     }
 

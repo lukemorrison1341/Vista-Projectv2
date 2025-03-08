@@ -21,8 +21,8 @@ void setup() {
     print_device_config();
     Serial.println("Attempting backend connection");
     
-    while(!connect_backend()){
-  
+    while(!connect_backend()){ //BLOCKING
+
     }
 
       digitalWrite(LED_PIN,HIGH);
@@ -33,8 +33,6 @@ void setup() {
       create_endpoints(); //Create the endpoints for the frontend-server
       xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,1,&frontend_handle_task);
       xTaskCreate(send_sensor_data, "Send Sensor Data To Backend",16384,NULL,1,&send_sensor_data_task);
-
-
       xTaskCreate(send_heartbeat, "Send Heartbeat to Backend",16384,NULL,1,&heartbeat_task);
     
         

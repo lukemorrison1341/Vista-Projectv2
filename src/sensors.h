@@ -1,6 +1,6 @@
 #ifndef SENSORS_H
 #define SENSORS_H
-#define PIR_INPUT 13
+#define PIR_INPUT 14
 #define TEMP_INPUT 1
 #define HUMID_INPUT 2
 #define SERVO_INPUT 4
