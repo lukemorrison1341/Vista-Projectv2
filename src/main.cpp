@@ -3,7 +3,6 @@
 #include "esp_heap_caps.h"
 
 void setup() {
-  clear_configuration();
   pinMode(LED_PIN,OUTPUT);
   Serial.begin(115200);
   if (!LittleFS.begin()) {

@@ -9,4 +9,5 @@ extern TaskHandle_t frontend_handle_task;
 void handlePIRRequest(); //Send PIR status to frontend
 void handle_frontend_server(void * pvParameters);
 void handleDeviceModeRequest();
+void handleFrontendTest(); //Test for frontend connection to determine backend-relay
 #endif
