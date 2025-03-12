@@ -1,5 +1,16 @@
 #include "device_config.h"
 boolean eco_mode = false;
+unsigned int max_temp = 0;
+unsigned int min_temp = 0; 
+unsigned int max_humid = 0;
+unsigned int min_humid = 0;
+boolean reset_device = false;
+boolean device_changed = false;
+
+void initialize_device_config(){ //Store user information in Preferences file.
+    
+}
+
 void handleDeviceModeRequest(){
     if(server.method() == HTTP_OPTIONS) //Handle CORS Policy
     {

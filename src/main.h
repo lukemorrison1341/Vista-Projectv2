@@ -8,6 +8,15 @@
 #include "frontend/frontend.h"
 #include "device_logic.h"
 
+
+/*
+    Purpose: Main function. Conditionally create FreeRTOS tasks
+    Check if device has been configured. If not configured, start device configuration process. Also includes the handle server for the device configuration webpage.
+    If already configured, create all necessary FreeRTOS Tasks. 
+    Check that device can connect to backend. This is BLOCKING
+    Configure the sensors
+*/
+
 TaskHandle_t sensor_read_task = NULL;
 TaskHandle_t ip_send_task = NULL;
 TaskHandle_t frontend_handle_task = NULL;

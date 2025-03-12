@@ -20,6 +20,12 @@ extern String device_name;
 extern String username;
 extern String user_password;
 
+/*
+    Purpose: Run immediately upon first turning device on (can also be reset to perform device configuration again), store WiFi credentials, user information.
+    Host small web page and create WiFi Access Point network for the user to connect to, host the web page at 192.168.4.1, user connects and enters all credentials. 
+    After completion, set a Preferences variable to be true so that the device can remember that it has already been configured.
+*/
+
 // Function prototypes
 void setup_server();
 void print_device_config();

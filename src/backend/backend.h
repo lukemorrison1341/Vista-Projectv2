@@ -5,6 +5,11 @@
 #include "device-setup.h" 
 #define SENSOR_SEND_DELAY 1000
 #define HEARTBEAT_SEND_DELAY 30000 
+
+/*
+    PURPOSE: Send Data to Backend no matter what. In case of backend relay, all the data needed is there. 
+*/
+
 boolean connect_backend();
 
 void send_ip(void * pvParameters); //send IP to backend server, FreeRTOS task

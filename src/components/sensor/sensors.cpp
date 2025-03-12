@@ -66,15 +66,15 @@ float read_temp(){
       Serial.print("MLX90614 => Object Temp: ");
       Serial.print(tempC, 2);
       Serial.println(" °C");
-      return tempC;
+      return (1.80f*tempC)+32.0f; //Farenheit conversion
     } else {
-        return 0.0f;
+      return 0.0f;
       Serial.println("MLX90614 => No data available");
     }
 }
 
 void config_humid(){
-    pinMode(HUMID_SDA, INPUT);
+  pinMode(HUMID_SDA, INPUT);
   pinMode(HUMID_SCL, INPUT);
   HumWire.begin(HUMID_SDA, HUMID_SCL, 100000); 
   Serial.println("Humidity Sensor configured");
@@ -92,7 +92,10 @@ void read_sensors(void * pvParameters){
         Serial.println("Reading Sensors");
         pir = get_pir();
         Serial.printf("Reading PIR Sensor: %d\n",pir);
+        temp = read_temp();
+        hum = read_humid();
         Serial.println("Sensors Read");
+
         vTaskDelay(SENSOR_DELAY); 
     }
 }

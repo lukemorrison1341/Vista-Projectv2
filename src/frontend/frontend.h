@@ -7,6 +7,12 @@
 #include "temp_control.h"
 #include "user_settings.h"
 #include "device_config.h"
+#include "../device_logic.h"
+
+/*
+    PURPOSE: Central hub for the frontend server, receive requests from web app in situation where frontend connection successful.
+*/
+
 void create_endpoints();
 extern TaskHandle_t frontend_handle_task;
 void handlePIRRequest(); //Send PIR status to frontend

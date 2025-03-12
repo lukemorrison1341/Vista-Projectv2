@@ -12,6 +12,10 @@
 #define SLOW_COUNTERCLOCKWISE_SPIN (uint32_t)((1.3 / 20.0) * ((1 << SERVO_RES) - 1))
 
 #define SERVO_RESPONSE_TIME 1000
+/*
+    Purpose: Store the desired next state of the vent (open/close). Include Do nothing state to tell the servo to stop spinning.
+    Includes all of the functions for configuring the servo, sending appropriate PWM signal based on servo_state
+*/
 
 enum SERVO_STATE{
     OPEN,

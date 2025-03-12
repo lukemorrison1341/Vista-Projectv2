@@ -1,4 +1,6 @@
 #include "frontend.h"
+enum CONNECTION_TYPE connection_type = BOTH; 
+
 void create_endpoints(){
     Serial.println("Starting Frontend Server...");
     server.on("/api/sensor/pir", HTTP_GET, handlePIRRequest);
@@ -72,6 +74,7 @@ void handleFrontendTest(){
     server.sendHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
     server.send(200, "application/json", jsonPayload);
+    connection_type = FRONTEND;
 
 }
 
