@@ -1,5 +1,6 @@
 #include "backend.h"
-#include "sensors.h"
+#include "../components/sensor/sensors.h"
+
 String serverURI = "http://vista-ucf.com:5000"; //backend URL
 void send_ip(void * pvParameters) {
     while(1) {
@@ -80,7 +81,7 @@ boolean wifi_connect(){
 
 
 //TODO: Add rest of the sensors.
-void send_sensor_data(void* pvParameters){ //Send sensors to backend in relay situation
+void send_sensor_data(){ //Send sensors to backend in relay situation
     while(1){
         send_pir_data();
         vTaskDelay(SENSOR_SEND_DELAY);
@@ -117,7 +118,7 @@ void send_pir_data(){
 
 }
 
-void send_heartbeat(void * pvParameters){
+void send_heartbeat(){
     file.begin("device_config",false); //read device configuration for username
     HTTPClient http;
     http.begin(serverURI + "/api/status");  
@@ -143,6 +144,15 @@ void send_heartbeat(void * pvParameters){
     } 
 
        
+}
+
+
+void backend_send_task(void * pvParameters){
+    send_heartbeat();
+    vTaskDelay(HEARTBEAT_SEND_DELAY);
+    send_sensor_data();
+    vTaskDelay(SENSOR_SEND_DELAY);
+
 }
 
 

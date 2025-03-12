@@ -23,17 +23,21 @@ void setup() {
     while(!connect_backend()){ //BLOCKING
 
     }
-
+      connection_type = BOTH; //TODO: Dynamically change this, delete tasks based on whether connections fail/succeed
       digitalWrite(LED_PIN,HIGH);
       //Startup Sequences
+      
       config_sensors();
-      xTaskCreate(send_ip, "Send IP to Backend", 16384, NULL, 1, &ip_send_task); //Sends IP to backend periodically
-      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 1, &sensor_read_task); //Read sensors periodically
       create_endpoints(); //Create the endpoints for the frontend-server
+      /*
+      TODO: Set Priority Levels to liking
+      */
+      xTaskCreate(send_ip, "Send IP to Backend", 16384, NULL, 1, &ip_send_task); //Sends IP to backend periodically (happens regardless of frontend/backend connection.)
+      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 1, &sensor_read_task); //Read sensors periodically
       xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,1,&frontend_handle_task);
-      xTaskCreate(send_sensor_data, "Send Sensor Data To Backend",16384,NULL,1,&send_sensor_data_task);
-      xTaskCreate(send_heartbeat, "Send Heartbeat to Backend",16384,NULL,1,&heartbeat_task);
-    
+      xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
+      xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,1,&servo_handle_task);
+      xTaskCreate(device_logic, "Device Logic Task",16384,NULL,1,&device_logic_task);
         
   }
      

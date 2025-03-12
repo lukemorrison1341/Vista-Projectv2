@@ -11,8 +11,9 @@ void send_ip(void * pvParameters); //send IP to backend server, FreeRTOS task
 void send_sensor_data(void * pvParameters);
 void send_pir_data();
 void send_heartbeat(void * pvParameters);
+void backend_send_task(void * pvParameters);
 boolean wifi_connect();
 extern String serverURI;
 extern TaskHandle_t ip_send_task;
-extern TaskHandle_t send_sensor_data_task;
+extern TaskHandle_t send_backend_task;
 #endif

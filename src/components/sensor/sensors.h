@@ -1,3 +1,7 @@
+/*
+Purpose: Read the state of each sensor, act as a spot to hold the current values of each sensor for easy read and retrieval.
+*/
+
 #ifndef SENSORS_H
 #define SENSORS_H
 #define PIR_INPUT 14
