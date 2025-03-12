@@ -1,6 +1,6 @@
 #include "device-setup.h"
 
-const char* ap_ssid = "ESP32_Access_Point";
+const char* ap_ssid = "VISTA_Access_Point";
 const char* ap_password = "12345678";
 WebServer server(80);
 Preferences file;

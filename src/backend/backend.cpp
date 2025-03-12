@@ -40,7 +40,7 @@ void send_ip(void * pvParameters) {
 boolean wifi_connect(){ 
     file.begin("device_config",false);
     WiFi.mode(WIFI_STA);
-    if(file.getBool("enterprise"),false){ //check if WiFi network was an enterprise network.
+    if(file.getBool("enterprise",false)){ //check if WiFi network was an enterprise network.
         Serial.println("\nConnecting to Enterprise Network\n");
         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)file.getString("wifi_username","").c_str(), strlen(file.getString("wifi_username","").c_str()));
         esp_wifi_sta_wpa2_ent_set_username((uint8_t *)file.getString("wifi_username","").c_str(), strlen(file.getString("wifi_username","").c_str()));
@@ -48,7 +48,6 @@ boolean wifi_connect(){
 
         // Enable WPA2 Enterprise with default configuration
         esp_wifi_sta_wpa2_ent_enable();
-
 
         WiFi.begin(ssid);
 
@@ -59,7 +58,7 @@ boolean wifi_connect(){
         Serial.println("Connecting to non-enterprise WiFi network...");
         WiFi.begin(file.getString("ssid",""),file.getString("password",""));
     }
-    
+    //Just fancy printing stuff
     uint32_t count =0; 
     uint16_t test_count=0;
     while(WiFi.status() != WL_CONNECTED){
