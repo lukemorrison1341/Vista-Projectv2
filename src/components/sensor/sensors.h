@@ -9,17 +9,21 @@ Purpose: Read the state of each sensor, act as a spot to hold the current values
 #define TEMP_SCL 26
 #define HUMID_SDA 22
 #define HUMID_SCL 21
+#define ADC_PIN 34 // GPIO 34
+#define LOW_THRESH 1000 // This value will need to be changed to get it right, but it should be fairly low
+#define HIGH_THRESH 4050 // Same with this value, it should be close, but just under the 3.3/5V ADC value. 
 
 // I2C addresses temperature, humidity
 #define HIH8120_ADDR 0x27
 #define MLX90614_ADDR 0x5A
 
-#define SENSOR_DELAY 1000 //Time between each sensor is read
+#define SENSOR_DELAY 4070 //Time between each sensor is read
 
 #include <Arduino.h>
 #include <Wire.h>
 
 extern boolean pir;
+extern boolean pir_adc_calc; // returns high when motion/occupancy detected.... i think
 extern float temp;
 extern float hum;
 extern TaskHandle_t sensor_read_task;

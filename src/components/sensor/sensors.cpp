@@ -1,17 +1,33 @@
 #include "sensors.h"
 
 boolean pir = false;
+boolean pir_adc_calc = false ; 
 float temp = 0.0f;
 float hum = 0.0f;
 TwoWire TempWire = TwoWire(1);
 TwoWire HumWire = TwoWire(0);
 
 boolean get_pir(){
-    return digitalRead(PIR_INPUT) == HIGH ? true : false;
+    return digitalRead(pir_adc_calc) == HIGH ? true : false;
 }
 void config_pir(){
-    pinMode(PIR_INPUT,INPUT);
-    Serial.println("PIR Sensor configured");
+   // pinMode(PIR_INPUT,INPUT);
+   // Serial.println("PIR Sensor configured");
+
+    int adcValue = analogRead(ADC_PIN); // Read the ADC value
+    Serial.print("ADC Value: ");
+    Serial.println(adcValue);
+
+    if (adcValue >= HIGH_THRESH ) {
+        Serial.println("ADC value is high");
+    } else if (adcValue <= LOW_THRESH) {
+      Serial.println("ADC Value is 0");
+    } else {
+      Serial.println("ADC Value is unstable :(");
+    }
+
+    delay(500);  // NOTE: We may need to add logic to see if the ADC value high for X duration. When the reading is unstable it might jump to 3.3V due to noise or
+                 // whatnot, so to counteract this, the reading should be checked a few times and if it's stable interpret that as a positive ident
 }
 
 void config_temp(){
