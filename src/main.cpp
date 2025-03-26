@@ -28,6 +28,7 @@ void setup() {
       //Startup Sequences
       
       config_sensors();
+      config_servo();
       create_endpoints(); //Create the endpoints for the frontend-server
       /*
       TODO: Set Priority Levels to liking
@@ -38,7 +39,8 @@ void setup() {
       xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
       xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,1,&servo_handle_task);
       xTaskCreate(device_logic, "Device Logic Task",16384,NULL,1,&device_logic_task);
-        
+      
+      initialize_device();
   }
      
   }
@@ -58,3 +60,4 @@ void loop(){
       vTaskDelay(pdMS_TO_TICKS(10000));
   }
 }
+

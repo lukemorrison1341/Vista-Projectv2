@@ -26,8 +26,13 @@ enum SERVO_STATE{
 void stop_spin(); //Stop the servo from spinning.
 void spin_clockwise();
 void spin_counterclockwise();
+void config_servo();
+void servo_handle(void * pvParameters);
+extern boolean servo_configured;
 
 extern enum SERVO_STATE servo_state;
+
+extern TaskHandle_t servo_handle_task;
 
 
 

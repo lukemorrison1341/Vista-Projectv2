@@ -7,6 +7,7 @@
 #include "components/servo/servo.h"
 #include "frontend/frontend.h"
 #include "device_logic.h"
+#include "frontend/device_config.h"
 
 
 /*

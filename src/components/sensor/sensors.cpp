@@ -3,6 +3,7 @@
 boolean pir = false;
 float temp = 0.0f;
 float hum = 0.0f;
+boolean sensors_configured = false;
 TwoWire TempWire = TwoWire(1);
 TwoWire HumWire = TwoWire(0);
 
@@ -22,6 +23,11 @@ void config_temp(){
 }
 
 float read_humid(){
+
+    HumWire.beginTransmission(HIH8120_ADDR);
+    HumWire.write(0x00);
+    HumWire.endTransmission();
+    vTaskDelay(50); //Says to do this
     HumWire.requestFrom(HIH8120_ADDR, (uint8_t)4);
     if (HumWire.available() == 4) {
       uint8_t b1 = HumWire.read();
@@ -46,10 +52,11 @@ float read_humid(){
 
 float read_temp(){
     // Start a write to specify which register we want
+    
     TempWire.beginTransmission(MLX90614_ADDR);
     TempWire.write(0x07);               // 0x07 = object temperature #1
     TempWire.endTransmission(false);    // use repeated start
-
+    vTaskDelay(5000);
     // Now read 3 bytes: LSB, MSB, and PEC (which we can ignore if not using)
     TempWire.requestFrom((uint8_t)MLX90614_ADDR, (uint8_t)3);
     if (TempWire.available() == 3) {
@@ -67,9 +74,9 @@ float read_temp(){
       Serial.print(tempC, 2);
       Serial.println(" °C");
       return (1.80f*tempC)+32.0f; //Farenheit conversion
-    } else {
-      return 0.0f;
+    } else {  
       Serial.println("MLX90614 => No data available");
+      return 0.0f;
     }
 }
 
@@ -85,17 +92,17 @@ void config_sensors(){
     config_pir();
     config_temp();
     config_humid();
+    sensors_configured=true;
 }
 
 void read_sensors(void * pvParameters){
     while(1){
+        if(!sensors_configured) return;
         Serial.println("Reading Sensors");
         pir = get_pir();
         Serial.printf("Reading PIR Sensor: %d\n",pir);
         temp = read_temp();
         hum = read_humid();
-        Serial.println("Sensors Read");
-
         vTaskDelay(SENSOR_DELAY); 
     }
 }

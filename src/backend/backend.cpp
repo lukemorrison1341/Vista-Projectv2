@@ -1,10 +1,14 @@
 #include "backend.h"
 #include "../components/sensor/sensors.h"
 
-String serverURI = "http://vista-ucf.com:5000"; //backend URL
+const String serverURI = "http://vista-ucf.com:5000"; //backend URL
+
 void send_ip(void * pvParameters) {
     while(1) {
-        
+        static String username = "UNINITIALIZED";
+        static String user_password = "UNINITIALIZED";
+        static String device_name = "UNINITIALIZED";
+        static boolean opened_file = false;
         file.begin("device_config",false); //read device configuration 
         if (WiFi.status() == WL_CONNECTED) {
             HTTPClient http;
@@ -12,10 +16,18 @@ void send_ip(void * pvParameters) {
             http.addHeader("Content-Type", "application/json");
             
             String jsonPayload = "{";
+            if(!opened_file){
+                username = file.getString("username","");
+                user_password = file.getString("user_password","");
+                device_name = file.getString("device_name","");
+                opened_file = true;
+                
+            }
+
             jsonPayload += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
-            jsonPayload += "\"username\":\"" + file.getString("username","") + "\",";
-            jsonPayload += "\"password\":\"" + file.getString("user_password","") + "\",";
-            jsonPayload += "\"device_name\":\"" + file.getString("device_name","") + "\"";
+            jsonPayload += "\"username\":\"" + username + "\",";
+            jsonPayload += "\"password\":\"" + user_password + "\",";
+            jsonPayload += "\"device_name\":\"" + device_name + "\"";
             jsonPayload += "}";
         
             int httpResponseCode = http.POST(jsonPayload);
@@ -41,7 +53,7 @@ boolean wifi_connect(){
     file.begin("device_config",false);
     WiFi.mode(WIFI_STA);
     if(file.getBool("enterprise",false)){ //check if WiFi network was an enterprise network.
-        Serial.println("\nConnecting to Enterprise Network\n");
+        Serial.printf("\nConnecting to Enterprise Network\n %s\n%s\n",file.getString("wifi_username","").c_str(),file.getString("password","").c_str());
         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)file.getString("wifi_username","").c_str(), strlen(file.getString("wifi_username","").c_str()));
         esp_wifi_sta_wpa2_ent_set_username((uint8_t *)file.getString("wifi_username","").c_str(), strlen(file.getString("wifi_username","").c_str()));
         esp_wifi_sta_wpa2_ent_set_password((uint8_t *)file.getString("password","").c_str(), strlen(file.getString("password","").c_str()));
@@ -49,7 +61,7 @@ boolean wifi_connect(){
         // Enable WPA2 Enterprise with default configuration
         esp_wifi_sta_wpa2_ent_enable();
 
-        WiFi.begin(ssid);
+        WiFi.begin(file.getString("ssid","").c_str());
 
     }
 
@@ -65,7 +77,7 @@ boolean wifi_connect(){
         if (count % 8192 == 0) {
             test_count++;
             if(count % 65536 == 0) Serial.print(".");
-            if(test_count>254){
+            if(test_count>8192){
                 Serial.println("WiFi connection timeout.");
                 file.end();
                 return false; //Time-out
@@ -81,14 +93,14 @@ boolean wifi_connect(){
 
 //TODO: Add rest of the sensors.
 void send_sensor_data(){ //Send sensors to backend in relay situation
-    while(1){
+    
         send_pir_data();
         vTaskDelay(SENSOR_SEND_DELAY);
-    }
+    
     
 }
 
-void send_pir_data(){
+void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint that sends everything in a big JSON
     Serial.println("Sending PIR data to: " + serverURI + "/api/data/pir");
         if (WiFi.status() == WL_CONNECTED) {
             file.begin("device_config",false); //read device configuration for username
@@ -121,8 +133,6 @@ void send_heartbeat(){
     file.begin("device_config",false); //read device configuration for username
     HTTPClient http;
     http.begin(serverURI + "/api/status");  
-    while(1)
-    {
         Serial.println("Sending Heartbeat: " + serverURI + "/api/device-status");
 
         http.addHeader("Content-Type", "application/json");
@@ -140,17 +150,18 @@ void send_heartbeat(){
         }
         http.end(); // Close connection
         vTaskDelay(HEARTBEAT_SEND_DELAY);
-    } 
-
        
 }
 
 
 void backend_send_task(void * pvParameters){
-    send_heartbeat();
-    vTaskDelay(HEARTBEAT_SEND_DELAY);
-    send_sensor_data();
-    vTaskDelay(SENSOR_SEND_DELAY);
+    while(1)
+    {
+        send_heartbeat();
+        vTaskDelay(HEARTBEAT_SEND_DELAY);
+        send_sensor_data();
+        vTaskDelay(SENSOR_SEND_DELAY);
+    }
 
 }
 

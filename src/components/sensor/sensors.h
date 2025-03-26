@@ -25,10 +25,11 @@ extern float hum;
 extern TaskHandle_t sensor_read_task;
 extern TwoWire TempWire; 
 extern TwoWire HumWire;
+extern boolean sensors_configured;
+
 void config_pir();
 void config_temp();
 void config_humid();
-void config_servo();
 boolean get_pir();
 float read_temp(); //returns in celsius
 float read_humid();
@@ -36,4 +37,4 @@ unsigned int get_temp();
 void config_sensors();
 void read_sensors(void * pvParameters);
 
-#endif
+#endif d

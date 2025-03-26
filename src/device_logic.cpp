@@ -1,31 +1,16 @@
 #include "device_logic.h"
 
-void servo_handle(void * pvParameters){
-    if(servo_state == OPEN){
-        spin_clockwise();
-        vTaskDelay(SERVO_RESPONSE_TIME);
-        servo_state = DO_NOTHING;
-    }
-    else if (servo_state == CLOSE){
-        spin_counterclockwise();
-        vTaskDelay(SERVO_RESPONSE_TIME);
-        servo_state = DO_NOTHING;
-    }
-    else if(servo_state == DO_NOTHING){
-        stop_spin();
-        vTaskDelay(SERVO_RESPONSE_TIME);
-    }
-    else{
-        Serial.println("Uninitialized Servo State Error");
-        vTaskDelay(SERVO_RESPONSE_TIME);
-    }
-   
-}
+
 
 void device_logic(void * pvParameters){ 
     /*
         Implemented Algorithm from Senior Design Software Decision Tree
     */
+
+    read_variable_state();
+    while(1){
+        if(!sensors_configured) return;
+        file.begin("device_state");
         if(eco_mode){//Eco Mode
             if(!pir){ //No motion detected
                 if(max_temp < temp){
@@ -49,6 +34,7 @@ void device_logic(void * pvParameters){
             if(max_temp < temp){
                     servo_state = OPEN;
                     Serial.println("Opening Vent, temperature too hot... ");
+                    
             }
             else if(min_temp > temp){
                     servo_state = CLOSE;
@@ -60,11 +46,26 @@ void device_logic(void * pvParameters){
                     servo_state = CLOSE;
                 }
                 else{
-                    Serial.println("Opening Vent, humidity out of range...");
+                    Serial.printf("Opening Vent, humidity out of range %f...",hum);
                     servo_state = OPEN;
                 }
             }
         }
 
+        vTaskDelay(DEVICE_LOGIC_DELAY);
+
     }
+}
     
+void read_variable_state(){
+        file.begin("device_state");
+        max_temp = file.getInt("max_temp",max_temp);
+        min_temp = file.getInt("min_temp",min_temp);
+        max_humid = file.getInt("max_humid",max_humid);
+        min_humid = file.getInt("min_humid",min_humid);
+        eco_mode = file.getBool("deviceMode",eco_mode);
+        Serial.println("Reading device state");
+        Serial.printf("\nMAX TEMP: %d MIN TEMP: %d MAX_HUMID %d MIN_HUMID %d DEVICE MODE %d\n", max_temp,min_temp,max_humid,min_humid,eco_mode);
+        file.end();
+        return;
+}

@@ -2,7 +2,7 @@
 #define DEVICE_CONFIG_H
 #include <Arduino.h>
 #include "frontend.h"
-
+#include <stdlib.h>
 extern boolean eco_mode;
 extern unsigned int max_temp;
 extern unsigned int min_temp; 
@@ -18,5 +18,7 @@ Purpose: Update variables stored from device configuration page in web applicati
 */
 
 void handleDeviceModeRequest();
+void initialize_device();
+void updateDeviceConfig(int min_humid, int max_humid, int min_temp, int max_temp, String device_mode, String vent_status);
 
 #endif

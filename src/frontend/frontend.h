@@ -17,6 +17,7 @@ void create_endpoints();
 extern TaskHandle_t frontend_handle_task;
 void handlePIRRequest(); //Send PIR status to frontend
 void handle_frontend_server(void * pvParameters);
-void handleDeviceModeRequest();
+void handleDataRequest(); //Send all data (PIR,Current Temperature,Current Humidity, Vent Status)
+void handleDeviceConfigRequest();
 void handleFrontendTest(); //Test for frontend connection to determine backend-relay
 #endif

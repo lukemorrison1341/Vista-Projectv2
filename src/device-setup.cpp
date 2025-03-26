@@ -44,7 +44,7 @@ void handleWifiSetup() {
     password = String(password_char);
     enterprise = doc["enterprise"];
   
-    Serial.printf("WiFi Credentials - SSID: %s, Password: %s Enterprise %d \n", ssid, password,enterprise);
+    Serial.printf("WiFi Credentials - SSID: %s, Password: %s Enterprise %d \n", ssid.c_str(), password.c_str(),enterprise);
 
     // Respond with success
 
@@ -60,6 +60,7 @@ void handleWifiSetup() {
       Serial.println("Testing Enterprise WiFi network.");
       const char * wifi_username_char = doc["username"];
       wifi_username = String(wifi_username_char);
+      Serial.printf("\nWIFI USERNAME %s",wifi_username.c_str());
       if(test_enterprise_wifi(ssid_char,password_char,wifi_username_char)){
         server.send(200, "application/json", "{\"status\": \"success\"}");
       }
@@ -184,15 +185,16 @@ void save_configuration(){ //Once done, stores key "initialized" -> true, initia
   }
 
   file.begin("device_config",false); //read+write 
-  file.putString("device_name",device_name);
-  file.putString("ssid",ssid);
-  file.putString("password",password);
-  file.putString("username",username);
+  file.putString("device_name",device_name.c_str());
+  file.putString("ssid",ssid.c_str());
+  file.putString("password",password.c_str());
+  file.putString("username",username.c_str());
   if(enterprise){
-    file.putString("wifi_username",wifi_username);
+    Serial.printf("\nStoring WiFi username: %s",wifi_username.c_str());
+    file.putString("wifi_username",wifi_username.c_str());
   }
   
-  file.putString("user_password",user_password);
+  file.putString("user_password",user_password.c_str());
   file.putBool("enterprise",enterprise);
   file.putBool("initialized",true);
   file.end();
@@ -205,6 +207,9 @@ void clear_configuration(){ //Clears all device configuration data
     return;
   }
   file.begin("device_config",false);
+  file.clear();
+  file.end();
+  file.begin("device_state",false);
   file.clear();
   file.end();
 

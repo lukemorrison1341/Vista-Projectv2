@@ -6,9 +6,9 @@
 #include <Arduino.h>
 #include "frontend/device_config.h"
 #include "components/servo/servo.h"
-void servo_handle(void * pvParameters);
+#define DEVICE_LOGIC_DELAY 10000
 void device_logic(void * pvParameters);
-extern TaskHandle_t servo_handle_task;
+void read_variable_state();
 extern TaskHandle_t device_logic_task;
 
 enum CONNECTION_TYPE {

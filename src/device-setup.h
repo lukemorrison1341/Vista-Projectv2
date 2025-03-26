@@ -10,9 +10,10 @@
 
 extern const char* ap_ssid;
 extern const char* ap_password;
+//store the name and wifi information 
 extern String ssid;
 extern String password;
-extern Preferences file; //store the name and wifi information 
+extern Preferences file;
 extern TaskHandle_t handle_config_server_task;
 extern WebServer server;
 extern boolean connected;

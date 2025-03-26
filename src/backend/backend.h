@@ -18,7 +18,11 @@ void send_pir_data();
 void send_heartbeat(void * pvParameters);
 void backend_send_task(void * pvParameters);
 boolean wifi_connect();
-extern String serverURI;
+extern const String serverURI;
 extern TaskHandle_t ip_send_task;
 extern TaskHandle_t send_backend_task;
+
+
+
+
 #endif
