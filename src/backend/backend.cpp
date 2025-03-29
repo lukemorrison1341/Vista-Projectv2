@@ -45,7 +45,7 @@ void send_ip(void * pvParameters) {
 
         file.end();
         Serial.printf("IP %s Sent To Backend\n",WiFi.localIP().toString());
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Send IP every minute
+        vTaskDelay(IP_SEND_DELAY); // Send IP every minute
     }
 }
 
@@ -86,6 +86,7 @@ boolean wifi_connect(){
         count++;
     }
     file.end();
+    WiFi.setSleep(true);
     Serial.println("WiFi connected.");
     return true;
 }
@@ -101,6 +102,7 @@ void send_sensor_data(){ //Send sensors to backend in relay situation
 }
 
 void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint that sends everything in a big JSON
+    WiFi.begin();
     Serial.println("Sending PIR data to: " + serverURI + "/api/data/pir");
         if (WiFi.status() == WL_CONNECTED) {
             file.begin("device_config",false); //read device configuration for username
@@ -122,9 +124,12 @@ void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint 
                 Serial.println("Error sending request. Code: " + String(httpResponseCode));
             }
             http.end(); 
+            file.end();
+            WiFi.mode(WIFI_OFF);
         } else {
             Serial.println("WiFi not connected");
         }
+        
     
 
 }

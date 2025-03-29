@@ -5,7 +5,7 @@
 #include "device-setup.h" 
 #define SENSOR_SEND_DELAY 1000
 #define HEARTBEAT_SEND_DELAY 30000 
-
+#define IP_SEND_DELAY 100000
 /*
     PURPOSE: Send Data to Backend no matter what. In case of backend relay, all the data needed is there. 
 */

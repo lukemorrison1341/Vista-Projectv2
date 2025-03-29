@@ -7,7 +7,7 @@ void setup() {
   Serial.begin(115200);
   if (!LittleFS.begin()) {
     Serial.println("Failed to initialize LittleFS!");
-    return;
+    LittleFS.begin(true);
   }
   Serial.println("File System initialized");
   
@@ -23,7 +23,7 @@ void setup() {
     while(!connect_backend()){ //BLOCKING
 
     }
-      connection_type = BOTH; //TODO: Dynamically change this, delete tasks based on whether connections fail/succeed
+      connection_type = BACKEND; //TODO: Dynamically change this, delete tasks based on whether connections fail/succeed
       digitalWrite(LED_PIN,HIGH);
       //Startup Sequences
       

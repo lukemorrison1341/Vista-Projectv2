@@ -1,6 +1,6 @@
 #include "frontend.h"
 enum CONNECTION_TYPE connection_type = BOTH; 
-
+volatile unsigned long last_frontend_access = 0;
 void create_endpoints(){
     Serial.println("Starting Frontend Server...");
     server.on("/api/sensor/pir", HTTP_GET, handlePIRRequest);
@@ -16,12 +16,13 @@ void create_endpoints(){
     server.on("/api/test", HTTP_OPTIONS, handleFrontendTest);
     server.begin();
     Serial.println("Frontend Server Started");
-
 }
 
 
 
 void handleFrontendTest(){
+
+    connection_type = FRONTEND;
 
     if(server.method() == HTTP_OPTIONS) //Handle CORS Policy
     {
@@ -86,9 +87,33 @@ if(server.method() == HTTP_OPTIONS) //Handle CORS Policy
 
 }
 
-void handle_frontend_server(void * pvParameters){
-    while(1){
-        server.handleClient();
+void handle_frontend_server(void *pvParameters) {
+    const TickType_t checkInterval = pdMS_TO_TICKS(5000);  // Check every 5s
+    unsigned long lastCheck = millis();
+
+    server.begin();
+    Serial.println("Frontend server started.");
+
+    last_frontend_access = millis();  // Assume active at start
+
+    while (true) {
+        server.handleClient();  // Poll for connections (non-blocking)
+
+        // Every 5s, check if it's been idle for >60s
+        if (millis() - lastCheck > 5000) {
+            lastCheck = millis();
+                
+            if (millis() - last_frontend_access > 6000) {
+                Serial.println("No frontend access for 6s. Shutting down server.");
+
+                server.stop();             // Stop the web server
+                WiFi.setSleep(true);       // Enable modem sleep
+                vTaskDelete(NULL);         // Kill this task
+                return;
+            }
+        }
+
+        vTaskDelay(1);  // Let other tasks breathe
     }
 }
 
