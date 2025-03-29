@@ -261,6 +261,7 @@ boolean test_enterprise_wifi(const char * ssid, const char * password, const cha
 
 void print_device_config(){
   file.begin("device_config",true); 
+  
   Serial.printf("SSID: %s  WIFI_PASSSWORD: %s ENTERPRISE %d WIFI_USERNAME %s NAME: %s  USER_USERNAME: %s USER_PASSWORD %s  \n",file.getString("ssid","").c_str(),file.getString("password","").c_str(), file.getBool("enterprise",false),file.getString("wifi_username",""),file.getString("device_name","").c_str(),file.getString("username","").c_str(),file.getString("user_password","").c_str());
   file.end();
 }

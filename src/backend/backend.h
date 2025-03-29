@@ -3,16 +3,19 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "device-setup.h" 
+#include "../main.h"
 #define SENSOR_SEND_DELAY 1000
-#define HEARTBEAT_SEND_DELAY 30000 
-#define IP_SEND_DELAY 100000
+#define HEARTBEAT_SEND_DELAY 3000 
+#define IP_SEND_DELAY 10000
+#define BACKEND_SEND_DELAY 10000
+
 /*
     PURPOSE: Send Data to Backend no matter what. In case of backend relay, all the data needed is there. 
 */
 
 boolean connect_backend();
 
-void send_ip(void * pvParameters); //send IP to backend server, FreeRTOS task
+void send_ip(); //send IP to backend server, FreeRTOS task
 void send_sensor_data(void * pvParameters);
 void send_pir_data();
 void send_heartbeat(void * pvParameters);

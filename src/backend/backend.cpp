@@ -3,12 +3,12 @@
 
 const String serverURI = "http://vista-ucf.com:5000"; //backend URL
 
-void send_ip(void * pvParameters) {
-    while(1) {
+void send_ip() {
+    
         static String username = "UNINITIALIZED";
         static String user_password = "UNINITIALIZED";
         static String device_name = "UNINITIALIZED";
-        static boolean opened_file = false;
+       
         file.begin("device_config",false); //read device configuration 
         if (WiFi.status() == WL_CONNECTED) {
             HTTPClient http;
@@ -16,14 +16,10 @@ void send_ip(void * pvParameters) {
             http.addHeader("Content-Type", "application/json");
             
             String jsonPayload = "{";
-            if(!opened_file){
+            
                 username = file.getString("username","");
                 user_password = file.getString("user_password","");
                 device_name = file.getString("device_name","");
-                opened_file = true;
-                
-            }
-
             jsonPayload += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
             jsonPayload += "\"username\":\"" + username + "\",";
             jsonPayload += "\"password\":\"" + user_password + "\",";
@@ -39,14 +35,18 @@ void send_ip(void * pvParameters) {
                 Serial.println("Error sending request. Code: " + String(httpResponseCode));
             }
             http.end(); // Close connection
-        } else {
-            Serial.println("WiFi not connected");
+            //WiFi.mode(WIFI_OFF);  
+            file.end();      
+        } 
+           
+        else {
+            Serial.println("WiFi not connected (send_ip)");
         }
 
-        file.end();
+       
         Serial.printf("IP %s Sent To Backend\n",WiFi.localIP().toString());
         vTaskDelay(IP_SEND_DELAY); // Send IP every minute
-    }
+    
 }
 
 boolean wifi_connect(){ 
@@ -86,7 +86,7 @@ boolean wifi_connect(){
         count++;
     }
     file.end();
-    WiFi.setSleep(true);
+    //WiFi.setSleep(true);
     Serial.println("WiFi connected.");
     return true;
 }
@@ -102,7 +102,7 @@ void send_sensor_data(){ //Send sensors to backend in relay situation
 }
 
 void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint that sends everything in a big JSON
-    WiFi.begin();
+    //WiFi.begin();
     Serial.println("Sending PIR data to: " + serverURI + "/api/data/pir");
         if (WiFi.status() == WL_CONNECTED) {
             file.begin("device_config",false); //read device configuration for username
@@ -125,9 +125,9 @@ void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint 
             }
             http.end(); 
             file.end();
-            WiFi.mode(WIFI_OFF);
+            //WiFi.mode(WIFI_OFF);
         } else {
-            Serial.println("WiFi not connected");
+            Serial.println("WiFi not connected (send_pir_data)");
         }
         
     
@@ -135,37 +135,63 @@ void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint 
 }
 
 void send_heartbeat(){
-    file.begin("device_config",false); //read device configuration for username
-    HTTPClient http;
-    http.begin(serverURI + "/api/status");  
-        Serial.println("Sending Heartbeat: " + serverURI + "/api/device-status");
+    //WiFi.begin();
+    static String username = "UNINITIALIZED";
+    static boolean file_read = false;
+    if(WiFi.status() == WL_CONNECTED){
+            
+                HTTPClient http;
+            http.begin(serverURI + "/api/status");  
+            
+            if(!file_read){
+                file.begin("device_config",false); //read device configuration for username
+                username = file.getString("username","");
+                file_read = true;
+                file.end();
+            }
 
-        http.addHeader("Content-Type", "application/json");
-        
-        String jsonPayload = "{";
-        jsonPayload += "\"username\":\"" + file.getString("username","") + "\"";
-        jsonPayload += "}";
-        int httpResponseCode = http.POST(jsonPayload);
+                Serial.println("Sending Heartbeat: " + serverURI + "/api/device-status");
 
-        if (httpResponseCode > 0) {
-            String response = http.getString();
-            Serial.println("Server response(/api/device-status): " + response);
-        } else {
-            Serial.println("Error sending request. Code: " + String(httpResponseCode));
+                http.addHeader("Content-Type", "application/json");
+                
+                String jsonPayload = "{";
+                
+                jsonPayload += "\"username\":\"" + username + "\"";
+                jsonPayload += "}";
+                int httpResponseCode = http.POST(jsonPayload);
+
+                if (httpResponseCode > 0) {
+                    String response = http.getString();
+                    Serial.println("Server response(/api/device-status): " + response);
+                } else {
+                    Serial.println("Error sending request. Code: " + String(httpResponseCode));
+                }
+                http.end(); // Close connection
+                
+               
         }
-        http.end(); // Close connection
+        else{
+            Serial.println("WiFi not connected send_heartbeat");
+        }
         vTaskDelay(HEARTBEAT_SEND_DELAY);
        
 }
 
 
-void backend_send_task(void * pvParameters){
+void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEND OTHER DATA OTHER THAN PIR
     while(1)
     {
+        esp_deregister_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
+        Serial.println("Turning off idle mode");
         send_heartbeat();
-        vTaskDelay(HEARTBEAT_SEND_DELAY);
+        Serial.println("Sent Heartbeat");
+        send_ip();
+        vTaskDelay(IP_SEND_DELAY);
         send_sensor_data();
-        vTaskDelay(SENSOR_SEND_DELAY);
+        Serial.println("Sent Sensor Data");
+        esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
+        Serial.println("Turned on idle mode");
+        vTaskDelay(BACKEND_SEND_DELAY); 
     }
 
 }

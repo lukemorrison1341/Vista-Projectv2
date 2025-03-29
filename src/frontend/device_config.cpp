@@ -88,6 +88,7 @@ void initialize_device(){
   file.begin("device_state");
   if(file.getBool("initialized",false) == true){
     Serial.println("Device already been initialized");
+    file.end();
     return;
   }
   /*
@@ -101,6 +102,7 @@ void initialize_device(){
   file.putBool("deviceMode", eco_mode);
   file.putString("vent_status","open");
   file.putBool("initialized",true);
+  file.end();
   return;
   
 }

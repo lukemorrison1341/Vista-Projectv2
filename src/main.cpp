@@ -1,9 +1,33 @@
 #include <Arduino.h>
 #include "main.h"
-#include "esp_heap_caps.h"
+
+
+TaskHandle_t sensor_read_task = NULL;
+TaskHandle_t ip_send_task = NULL;
+TaskHandle_t frontend_handle_task = NULL;
+TaskHandle_t handle_config_server_task = NULL;
+TaskHandle_t send_sensor_data_task = NULL;
+TaskHandle_t heartbeat_task = NULL;
+TaskHandle_t servo_handle_task = NULL;
+TaskHandle_t device_logic_task = NULL;
+TaskHandle_t send_backend_task = NULL;
+
+
+bool my_idle_hook_cb() {
+    static int counter = 0;
+    if (counter++ % 500 == 0) {
+        Serial.println("[Idle Hook] System is idle, attempting light sleep");
+    }
+
+    esp_sleep_enable_timer_wakeup(10000); // 100 ms
+    esp_light_sleep_start();
+
+    return true;
+}
 
 void setup() {
   pinMode(LED_PIN,OUTPUT);
+  
   Serial.begin(115200);
   if (!LittleFS.begin()) {
     Serial.println("Failed to initialize LittleFS!");
@@ -23,7 +47,8 @@ void setup() {
     while(!connect_backend()){ //BLOCKING
 
     }
-      connection_type = BACKEND; //TODO: Dynamically change this, delete tasks based on whether connections fail/succeed
+   
+      connection_type = BOTH; //TODO: Dynamically change this, delete tasks based on whether connections fail/succeed
       digitalWrite(LED_PIN,HIGH);
       //Startup Sequences
       
@@ -33,7 +58,7 @@ void setup() {
       /*
       TODO: Set Priority Levels to liking
       */
-      xTaskCreate(send_ip, "Send IP to Backend", 16384, NULL, 1, &ip_send_task); //Sends IP to backend periodically (happens regardless of frontend/backend connection.)
+      //xTaskCreate(send_ip, "Send IP to Backend", 16384, NULL, 1, &ip_send_task); //Sends IP to backend periodically (happens regardless of frontend/backend connection.)
       xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 1, &sensor_read_task); //Read sensors periodically
       xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,1,&frontend_handle_task);
       xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
@@ -53,7 +78,16 @@ void handle_server(void * pvParameters){ //FreeRTOS task
   }
 }
 
+
+
+
 void loop(){
+
+  if(connection_type == BACKEND)
+  {
+    Serial.println("Setting low power mode");
+     
+  }
   while (1) {
       Serial.print("Free Heap: ");
       Serial.println(esp_get_free_heap_size());

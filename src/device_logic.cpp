@@ -2,7 +2,7 @@
 
 
 
-void device_logic(void * pvParameters){ 
+void device_logic(void * pvParameters){  //TODO: 
     /*
         Implemented Algorithm from Senior Design Software Decision Tree
     */
@@ -10,7 +10,6 @@ void device_logic(void * pvParameters){
     read_variable_state();
     while(1){
         if(!sensors_configured) return;
-        file.begin("device_state");
         if(eco_mode){//Eco Mode
             if(!pir){ //No motion detected
                 if(max_temp < temp){

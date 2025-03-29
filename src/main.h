@@ -8,6 +8,8 @@
 #include "frontend/frontend.h"
 #include "device_logic.h"
 #include "frontend/device_config.h"
+#include "esp_freertos_hooks.h"
+#include "esp_heap_caps.h"
 
 
 /*
@@ -18,17 +20,18 @@
     Configure the sensors
 */
 
-TaskHandle_t sensor_read_task = NULL;
-TaskHandle_t ip_send_task = NULL;
-TaskHandle_t frontend_handle_task = NULL;
-TaskHandle_t handle_config_server_task = NULL;
-TaskHandle_t send_sensor_data_task = NULL;
-TaskHandle_t heartbeat_task = NULL;
-TaskHandle_t servo_handle_task = NULL;
-TaskHandle_t device_logic_task = NULL;
-TaskHandle_t send_backend_task = NULL;
+extern TaskHandle_t sensor_read_task;
+extern TaskHandle_t ip_send_task;
+extern TaskHandle_t frontend_handle_task;
+extern TaskHandle_t handle_config_server_task;
+extern TaskHandle_t send_sensor_data_task;
+extern TaskHandle_t heartbeat_task;
+extern TaskHandle_t servo_handle_task;
+extern TaskHandle_t device_logic_task;
+extern TaskHandle_t send_backend_task;
 
 void handle_server(void * pvParameters);
+bool my_idle_hook_cb();
 
 
 #endif
