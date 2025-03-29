@@ -8,7 +8,7 @@ void send_ip() {
         static String username = "UNINITIALIZED";
         static String user_password = "UNINITIALIZED";
         static String device_name = "UNINITIALIZED";
-       
+        static boolean read_file = false;
         file.begin("device_config",false); //read device configuration 
         if (WiFi.status() == WL_CONNECTED) {
             HTTPClient http;
@@ -16,10 +16,12 @@ void send_ip() {
             http.addHeader("Content-Type", "application/json");
             
             String jsonPayload = "{";
-            
+            if(!read_file){
+                read_file= true;
                 username = file.getString("username","");
                 user_password = file.getString("user_password","");
                 device_name = file.getString("device_name","");
+                }
             jsonPayload += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
             jsonPayload += "\"username\":\"" + username + "\",";
             jsonPayload += "\"password\":\"" + user_password + "\",";
@@ -183,6 +185,7 @@ void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEN
     {
         esp_deregister_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
         Serial.println("Turning off idle mode");
+        vTaskDelay(10000); //WIFI Delay
         send_heartbeat();
         Serial.println("Sent Heartbeat");
         send_ip();

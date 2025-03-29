@@ -15,8 +15,10 @@ TaskHandle_t send_backend_task = NULL;
 
 bool my_idle_hook_cb() {
     static int counter = 0;
-    if (counter++ % 500 == 0) {
-        Serial.println("[Idle Hook] System is idle, attempting light sleep");
+    static boolean idle = false;
+    if ((counter++ % 500 == 0)) {
+        Serial.println("[Idle Hook] System is idle");
+
     }
 
     esp_sleep_enable_timer_wakeup(10000); // 100 ms
