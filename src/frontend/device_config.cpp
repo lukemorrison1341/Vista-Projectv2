@@ -10,7 +10,7 @@ void initialize_device_config(){ //Store user information in Preferences file.
     
 }
 
-void handleDeviceConfigRequest(){ //both POST and GET allowed
+void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
     if(server.method() == HTTP_OPTIONS) //Handle CORS Policy
     {
         server.sendHeader("Access-Control-Allow-Origin", "*");

@@ -1,5 +1,5 @@
 #include "backend.h"
-#include "../components/sensor/sensors.h"
+
 
 const String serverURI = "http://vista-ucf.com:5000"; //backend URL
 
@@ -185,12 +185,14 @@ void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEN
     {
         esp_deregister_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
         Serial.println("Turning off idle mode");
+        //HERE: need to ocnnect to WiFi again I think
         vTaskDelay(10000); //WIFI Delay
         send_heartbeat();
         Serial.println("Sent Heartbeat");
         send_ip();
         vTaskDelay(IP_SEND_DELAY);
-        send_sensor_data();
+        //send_sensor_data();
+        send_data();
         Serial.println("Sent Sensor Data");
         esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
         Serial.println("Turned on idle mode");
@@ -200,8 +202,104 @@ void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEN
 }
 
 
+void send_data(){
+
+        static String username = "UNINITIALIZED";
+        static boolean file_read = false;
+        if(WiFi.status() == WL_CONNECTED){
+            
+            HTTPClient http;
+            http.begin(serverURI + "/api/data");  
+            
+            if(!file_read){
+                file.begin("device_config",false); //read device configuration for username
+                username = file.getString("username","");
+                file_read = true;
+                file.end();
+            }
+
+                Serial.printf("Sending Device Data: TEMP %f HUMIDITY %f PIR %d /api/data");
+
+                http.addHeader("Content-Type", "application/json");
+                
+    
+
+                String jsonPayload = "{";
+                jsonPayload += "\"username\":\"" + username + "\",";
+                jsonPayload += "\"temperature\":" + String(temp) + ",";
+                jsonPayload += "\"humidity\":" + String(hum, 2) + ",";
+                jsonPayload += "\"pir\":" + String(pir) + ",";
+                jsonPayload += "\"vent\":" + String(vent_state);
+                jsonPayload += "}";
+                int httpResponseCode = http.POST(jsonPayload);
+
+                if (httpResponseCode > 0) {
+                    String response = http.getString();
+                    Serial.println("Server response(/api/device-status): " + response);
+                } else {
+                    Serial.println("Error sending request. Code: " + String(httpResponseCode));
+                }
+                http.end(); // Close connection
+                
+               
+        }
+        else{
+            Serial.println("WiFi not connected send_data");
+        }
+        vTaskDelay(HEARTBEAT_SEND_DELAY); //make a different delay
+    
+}
 
 
+//MAKE THESE two separate tasks
+
+void get_config(){
+
+
+    static String username = "UNINITIALIZED";
+    static boolean file_read = false;
+
+    if(!file_read){
+        file_read=true;
+        file.begin("device_config",false); //read device configuration for username
+        username = file.getString("username","");
+        file_read = true;
+        file.end();
+    }
+
+    if(WiFi.status() == WL_CONNECTED){
+        HTTPClient http;
+        http.begin(serverURI + "/api/get_config");
+        Serial.println("Getting device configuration data");
+
+        int httpCode = http.GET();
+
+        if(httpCode > 0){
+            String response = http.getString();
+            Serial.println("Got device configuration data:");
+            Serial.printf("%s\n",response);
+
+                    StaticJsonDocument<256> doc;
+                    DeserializationError error = deserializeJson(doc, response);
+
+                    min_temp = doc["min_temp"];
+                    max_temp = doc["max_temp"];
+                    min_humid = doc["min_humid"];
+                    max_humid = doc["max_humid"];
+                    bool motion_enabled = doc["motion_detection_enabled"]; //TODO: Do something with this
+                    eco_mode = doc["eco_mode_enabled"];
+                    updateDeviceConfig(min_humid,max_humid,min_temp,max_temp, (eco_mode ? "eco mode" : "not eco mode"), "UNINITIALIZED");
+        }
+        else{
+            Serial.println("Server error: Bad response code (get_config)");
+        }
+        http.end();
+    }
+    else{
+        Serial.println("WiFi failed send_config");
+    }
+
+}
 
 boolean connect_backend(){
 
@@ -220,6 +318,7 @@ boolean connect_backend(){
     int httpResponseCode = http.GET();
     if (httpResponseCode > 0) {
         String response = http.getString();
+        Serial.printf("Server response: %s\n",response.c_str());
         http.end();
         return true;
     } else {

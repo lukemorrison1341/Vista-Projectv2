@@ -4,6 +4,9 @@
 #include <HTTPClient.h>
 #include "device-setup.h" 
 #include "../main.h"
+#include "../components/sensor/sensors.h"
+#include "../components/servo/servo.h"
+#include "../frontend/device_config.h"
 #define SENSOR_SEND_DELAY 1000
 #define HEARTBEAT_SEND_DELAY 3000 
 #define IP_SEND_DELAY 10000
@@ -19,6 +22,7 @@ void send_ip(); //send IP to backend server, FreeRTOS task
 void send_sensor_data(void * pvParameters);
 void send_pir_data();
 void send_heartbeat(void * pvParameters);
+void send_data(); //send ALL data
 void backend_send_task(void * pvParameters);
 boolean wifi_connect();
 extern const String serverURI;

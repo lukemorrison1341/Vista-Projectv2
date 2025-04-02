@@ -2,7 +2,7 @@
 #ifndef SERVO_H
 #define SERVO_H
 #include <Arduino.h>
-#define SERVO_PIN       14        // PWM output pin
+#define SERVO_PIN       27        // PWM output pin
 #define SERVO_CHANNEL   0         // LEDC PWM channel (0-15 available)
 #define SERVO_FREQ      50        // Frequency in Hz (50 Hz -> 20 ms period)
 #define SERVO_RES       16        // PWM resolution in bits
@@ -24,8 +24,8 @@ enum SERVO_STATE{
 };
 
 enum VENT_STATE{
-    VENT_OPEN,
-    VENT_CLOSE
+    VENT_OPEN = 0,
+    VENT_CLOSE = 1
 };
 
 void stop_spin(); //Stop the servo from spinning.
