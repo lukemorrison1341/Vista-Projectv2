@@ -23,7 +23,9 @@ void send_sensor_data(void * pvParameters);
 void send_pir_data();
 void send_heartbeat(void * pvParameters);
 void send_data(); //send ALL data
+void get_config();
 void backend_send_task(void * pvParameters);
+void send_config();
 boolean wifi_connect();
 extern const String serverURI;
 extern TaskHandle_t ip_send_task;

@@ -209,8 +209,8 @@ void clear_configuration(){ //Clears all device configuration data
   file.begin("device_config",false);
   file.clear();
   file.end();
-  file.begin("device_state",false);
-  file.clear();
+  //file.begin("device_state",false);
+  //file.clear();
   file.end();
 
 }

@@ -1,14 +1,11 @@
 #include "device_config.h"
 boolean eco_mode = false;
+//Initial values
 unsigned int max_temp = 75;
 unsigned int min_temp = 65; 
 unsigned int max_humid = 70;
 unsigned int min_humid = 50;
 boolean reset_device = false;
-
-void initialize_device_config(){ //Store user information in Preferences file.
-    
-}
 
 void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
     if(server.method() == HTTP_OPTIONS) //Handle CORS Policy
@@ -22,7 +19,7 @@ void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
 
     if (server.method() == HTTP_POST) {
         String body = server.arg("plain");  // Raw request body
-        Serial.println("Received device config POST request");
+        Serial.println("Received device config POST request from frontend");
     
         StaticJsonDocument<256> jsonDoc;
         DeserializationError error = deserializeJson(jsonDoc,body);
@@ -54,7 +51,7 @@ void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
     else if(server.method() == HTTP_GET){
       Serial.println("Received Device Config GET Request");
       StaticJsonDocument<256> jsonResponse;
-      file.begin("device_state");
+      file.begin("device_config");
       jsonResponse["min_temp"] = file.getInt("min_temp",min_temp);
       jsonResponse["max_temp"] = file.getInt("max_temp",max_temp);
       jsonResponse["min_humid"] = file.getInt("min_humid",min_humid);
@@ -85,8 +82,8 @@ void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
 
 void initialize_device(){
   Serial.println("Initializing Device...");
-  file.begin("device_state");
-  if(file.getBool("initialized",false) == true){
+  file.begin("device_config");
+  if(file.getBool("i_conf",false) == true){
     Serial.println("Device already been initialized");
     file.end();
     return;
@@ -101,7 +98,7 @@ void initialize_device(){
   file.putInt("min_humid",min_humid);
   file.putBool("deviceMode", eco_mode);
   file.putString("vent_status","open");
-  file.putBool("initialized",true);
+  file.putBool("i_conf",true);
   file.end();
   return;
   
@@ -109,7 +106,7 @@ void initialize_device(){
 
 
 void updateDeviceConfig(int min_temp_new, int max_temp_new, int min_humid_new, int max_humid_new, String device_mode_new, String vent_status_new){
-    file.begin("device_state");
+    file.begin("device_config");
     if(device_mode_new == "eco mode"){
         Serial.println("Setting device mode to Eco.");
         eco_mode = true;
@@ -120,6 +117,11 @@ void updateDeviceConfig(int min_temp_new, int max_temp_new, int min_humid_new, i
         Serial.println("Setting device mode to not Eco.");
         eco_mode = false;
     } 
+
+    Serial.println("Updating Device Config");
+
+    Serial.printf("\nNEW VALUES: MIN TEMP %d MAX TEMP %d MIN HUMID  %d MAX HUMID%d\n", min_temp_new,max_temp_new,min_humid_new,max_humid_new);
+
     file.putBool("deviceMode",eco_mode);
     file.putInt("max_temp",max_temp_new);
     max_temp = max_temp_new;
@@ -130,7 +132,7 @@ void updateDeviceConfig(int min_temp_new, int max_temp_new, int min_humid_new, i
     file.putInt("min_humid",min_humid_new);
     min_humid = min_humid_new;
     file.end();
-    file.begin("device_state");
+    file.begin("device_config");
     Serial.printf("\nMAX TEMP: %d MIN TEMP: %d MAX_HUMID %d MIN_HUMID %d DEVICE MODE %d", file.getInt("max_temp",max_temp_new),file.getInt("min_temp",min_temp_new),file.getInt("max_humid",max_humid_new),file.getInt("min_humid",min_humid_new),file.getBool("deviceMode",eco_mode));
     file.end();
     return;

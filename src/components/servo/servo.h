@@ -8,10 +8,10 @@
 #define SERVO_RES       16        // PWM resolution in bits
 
 #define NO_SPIN (uint32_t)((1.5 / 20.0) * ((1 << SERVO_RES) - 1))
-#define SLOW_COUNTERCLOCKWISE_SPIN (uint32_t)((1.53 / 20.0) * ((1 << SERVO_RES) - 1)) //counter is open
-#define SLOW_CLOCKWISE_SPIN (uint32_t)((1.3 / 20.0) * ((1 << SERVO_RES) - 1)) //closed
+#define SLOW_COUNTERCLOCKWISE_SPIN (uint32_t)((1.6 / 20.0) * ((1 << SERVO_RES) - 1)) //counter is open
+#define SLOW_CLOCKWISE_SPIN (uint32_t)((1.38 / 20.0) * ((1 << SERVO_RES) - 1)) //closed
 
-#define SERVO_RESPONSE_TIME 10000
+#define SERVO_RESPONSE_TIME 1000
 /*
     Purpose: Store the desired next state of the vent (open/close). Include Do nothing state to tell the servo to stop spinning.
     Includes all of the functions for configuring the servo, sending appropriate PWM signal based on servo_state
@@ -32,7 +32,7 @@ void stop_spin(); //Stop the servo from spinning.
 void spin_clockwise();
 void spin_counterclockwise();
 void config_servo();
-void servo_handle(void * pvParameters);
+void servo_handle();
 extern boolean servo_configured;
 
 extern enum SERVO_STATE servo_state;

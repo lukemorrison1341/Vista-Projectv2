@@ -23,12 +23,12 @@ bool my_idle_hook_cb() {
 
     esp_sleep_enable_timer_wakeup(10000); // 100 ms
     esp_light_sleep_start();
-
     return true;
 }
 
 void setup() {
   pinMode(LED_PIN,OUTPUT);
+
   
   Serial.begin(115200);
   if (!LittleFS.begin()) {
@@ -61,13 +61,21 @@ void setup() {
       TODO: Set Priority Levels to liking
       */
       //xTaskCreate(send_ip, "Send IP to Backend", 16384, NULL, 1, &ip_send_task); //Sends IP to backend periodically (happens regardless of frontend/backend connection.)
-      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 1, &sensor_read_task); //Read sensors periodically
-      xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,1,&frontend_handle_task);
-      xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
-      xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,1,&servo_handle_task);
-      xTaskCreate(device_logic, "Device Logic Task",16384,NULL,1,&device_logic_task);
+
+      
+     
       
       initialize_device();
+      get_config();
+      send_ip();
+      
+      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 15, &sensor_read_task); //Read sensors periodically
+      xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,15,&frontend_handle_task);
+      xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
+
+      xTaskCreate(device_logic, "Device Logic Task",16384,NULL,13,&device_logic_task);
+      //xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,configMAX_PRIORITIES-1,&servo_handle_task);
+      
   }
      
   }

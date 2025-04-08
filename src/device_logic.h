@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include "frontend/device_config.h"
 #include "components/servo/servo.h"
-#define DEVICE_LOGIC_DELAY 10000
+#define DEVICE_LOGIC_DELAY 1000
 void device_logic(void * pvParameters);
 void read_variable_state();
 extern TaskHandle_t device_logic_task;

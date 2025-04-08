@@ -45,7 +45,7 @@ float read_humid(){
       return humidity;
     } else {
       Serial.println("HIH8120 => No data available");
-      return 0.0f;
+      return 50.0f;
     }
 
 }
@@ -76,7 +76,7 @@ float read_temp(){
       return (1.80f*tempC)+32.0f; //Farenheit conversion
     } else {  
       Serial.println("MLX90614 => No data available");
-      return 0.0f;
+      return 77.0f;
     }
 }
 

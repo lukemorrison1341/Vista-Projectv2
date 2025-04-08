@@ -11,6 +11,7 @@ void send_ip() {
         static boolean read_file = false;
         file.begin("device_config",false); //read device configuration 
         if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("Sending IP");
             HTTPClient http;
             http.begin(serverURI + "/api/device-config");  
             http.addHeader("Content-Type", "application/json");
@@ -34,7 +35,7 @@ void send_ip() {
                 String response = http.getString();
                 Serial.println("Server response(/api/device-config): " + response);
             } else {
-                Serial.println("Error sending request. Code: " + String(httpResponseCode));
+                Serial.println("Error sending request /api/device-config. Code: " + String(httpResponseCode));
             }
             http.end(); // Close connection
             //WiFi.mode(WIFI_OFF);  
@@ -47,7 +48,7 @@ void send_ip() {
 
        
         Serial.printf("IP %s Sent To Backend\n",WiFi.localIP().toString());
-        vTaskDelay(IP_SEND_DELAY); // Send IP every minute
+        //vTaskDelay(IP_SEND_DELAY); // Send IP every minute
     
 }
 
@@ -166,7 +167,7 @@ void send_heartbeat(){
                     String response = http.getString();
                     Serial.println("Server response(/api/device-status): " + response);
                 } else {
-                    Serial.println("Error sending request. Code: " + String(httpResponseCode));
+                    Serial.println("Error sending request /api/device-status. Code: " + String(httpResponseCode));
                 }
                 http.end(); // Close connection
                 
@@ -183,9 +184,14 @@ void send_heartbeat(){
 void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEND OTHER DATA OTHER THAN PIR
     while(1)
     {
+        /*static boolean connect_wifi_again = false;
         esp_deregister_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
         Serial.println("Turning off idle mode");
-        //HERE: need to ocnnect to WiFi again I think
+        if(connect_wifi_again){
+            connect_backend();
+        }
+        */
+
         vTaskDelay(10000); //WIFI Delay
         send_heartbeat();
         Serial.println("Sent Heartbeat");
@@ -194,8 +200,10 @@ void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEN
         //send_sensor_data();
         send_data();
         Serial.println("Sent Sensor Data");
-        esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
-        Serial.println("Turned on idle mode");
+        //esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
+        //connect_wifi_again=true;
+        Serial.println("Retrieving device configurations");
+        get_config();
         vTaskDelay(BACKEND_SEND_DELAY); 
     }
 
@@ -218,7 +226,7 @@ void send_data(){
                 file.end();
             }
 
-                Serial.printf("Sending Device Data: TEMP %f HUMIDITY %f PIR %d /api/data");
+                Serial.printf("Sending Device Data: TEMP %f HUMIDITY %f PIR %d /api/data",temp,hum,pir);
 
                 http.addHeader("Content-Type", "application/json");
                 
@@ -249,11 +257,7 @@ void send_data(){
         vTaskDelay(HEARTBEAT_SEND_DELAY); //make a different delay
     
 }
-
-
-//MAKE THESE two separate tasks
-
-void get_config(){
+void get_config(){ //make this a task
 
 
     static String username = "UNINITIALIZED";
@@ -269,7 +273,8 @@ void get_config(){
 
     if(WiFi.status() == WL_CONNECTED){
         HTTPClient http;
-        http.begin(serverURI + "/api/get_config");
+        String url = serverURI + "/api/get_config?username=" + username; //add username as query
+        http.begin(url);
         Serial.println("Getting device configuration data");
 
         int httpCode = http.GET();
@@ -277,18 +282,20 @@ void get_config(){
         if(httpCode > 0){
             String response = http.getString();
             Serial.println("Got device configuration data:");
-            Serial.printf("%s\n",response);
+            Serial.printf("%s\n",response.c_str());
 
                     StaticJsonDocument<256> doc;
                     DeserializationError error = deserializeJson(doc, response);
 
                     min_temp = doc["min_temp"];
                     max_temp = doc["max_temp"];
-                    min_humid = doc["min_humid"];
-                    max_humid = doc["max_humid"];
+                    min_humid = doc["min_humidity"];
+                    max_humid = doc["max_humidity"];
                     bool motion_enabled = doc["motion_detection_enabled"]; //TODO: Do something with this
                     eco_mode = doc["eco_mode_enabled"];
-                    updateDeviceConfig(min_humid,max_humid,min_temp,max_temp, (eco_mode ? "eco mode" : "not eco mode"), "UNINITIALIZED");
+
+                    Serial.printf("\nMIN TEMP %d MAX TEMP %d MIN HUMID %d MAX HUMID %d (before updating file)\n",min_temp,max_temp,min_humid,max_humid);
+                    updateDeviceConfig(min_temp,max_temp,min_humid,max_humid, (eco_mode ? "eco mode" : "vacant"), "UNINITIALIZED");
         }
         else{
             Serial.println("Server error: Bad response code (get_config)");
@@ -300,6 +307,63 @@ void get_config(){
     }
 
 }
+
+
+void send_config() { //should happen once
+    static String username = "UNINITIALIZED";
+    static boolean read_file = false;
+    int min_temp, max_temp, min_humidity, max_humidity;
+    bool motion_detection_enabled, eco_mode_enabled;
+
+    file.begin("device_config", false); // Read device configuration
+    Serial.println("Sending device configuration on startup....");
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        http.begin(serverURI + "/api/send-config");
+        http.addHeader("Content-Type", "application/json");
+
+        String jsonPayload = "{";
+
+        if (!read_file) {
+            read_file = true;
+            username = file.getString("username", "");
+            min_temp = file.getInt("min_temp", min_temp);
+            max_temp = file.getInt("max_temp", max_temp);
+            min_humidity = file.getInt("min_humidity", min_humid);
+            max_humidity = file.getInt("max_humidity", max_humid);
+            motion_detection_enabled = file.getBool("motion_detection_enabled", true);
+            eco_mode_enabled = file.getBool("deviceMode",false) ? "eco mode" : "vacant mode";
+        }
+
+        jsonPayload += "\"username\":\"" + username + "\",";
+        jsonPayload += "\"min_temp\":" + String(min_temp) + ",";
+        jsonPayload += "\"max_temp\":" + String(max_temp) + ",";
+        jsonPayload += "\"min_humidity\":" + String(min_humidity) + ",";
+        jsonPayload += "\"max_humidity\":" + String(max_humidity) + ",";
+        jsonPayload += "\"motion_detection_enabled\":" + String(motion_detection_enabled ? 1 : 0) + ",";
+        jsonPayload += "\"eco_mode_enabled\":" + String(eco_mode_enabled ? 1 : 0);
+        jsonPayload += "}";
+
+        Serial.println("[Config Send] Sending config to backend:");
+        Serial.println(jsonPayload);
+
+        int httpResponseCode = http.POST(jsonPayload);
+
+        if (httpResponseCode > 0) {
+            String response = http.getString();
+            Serial.println("Server response(/api/send-config): " + response);
+        } else {
+            Serial.println("Error sending config. Code: " + String(httpResponseCode));
+        }
+
+        http.end(); // Close connection
+        file.end();
+    } else {
+        Serial.println("WiFi not connected (send_config)");
+    }
+}
+
+
 
 boolean connect_backend(){
 

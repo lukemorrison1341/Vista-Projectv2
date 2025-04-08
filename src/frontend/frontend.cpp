@@ -106,8 +106,6 @@ void handle_frontend_server(void *pvParameters) {
             if (millis() - last_frontend_access > 6000) {
                 Serial.println("No frontend access for 6s. Shutting down server.");
                 connection_type = BACKEND;
-                //esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
-                //Serial.println("Set low power mode");
                 server.stop();             // Stop the web server
                 vTaskDelete(NULL);         // Kill this task
                 return;

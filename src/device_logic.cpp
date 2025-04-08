@@ -7,17 +7,20 @@ void device_logic(void * pvParameters){  //TODO:
         Implemented Algorithm from Senior Design Software Decision Tree
     */
 
-    read_variable_state();
+    
     while(1){
-        if(!sensors_configured) return;
+        //Serial.println("DEVICE LOGIC TASK");
+        //if(!sensors_configured) return;
+        read_variable_state();
         if(eco_mode){//Eco Mode
-            if(!pir){ //No motion detected
+            if(!pir){ //No motion detected (INCLUDE PIR + MOTION DETECTION ENABLED)
                 if(max_temp < temp){
-                    Serial.println("Opening Vent, temperature too hot... ");
+                    Serial.printf("\nOpening Vent Max Temp %d < %f Temp, temperature too hot... \n",max_temp,temp);
                     servo_state = OPEN;
+
                 }
                 else if(min_temp > temp){
-                    Serial.println("Closing Vent, temperature too cold...");
+                    Serial.printf("\nClosing Vent Min Temp %d > %f Temp, temperature too cold...\n",min_temp,temp);
                     servo_state = CLOSE;
                 }
                 else{
@@ -32,12 +35,12 @@ void device_logic(void * pvParameters){  //TODO:
         else{ //Vacant mode
             if(max_temp < temp){
                     servo_state = OPEN;
-                    Serial.println("Opening Vent, temperature too hot... ");
+                    Serial.printf("\nOpening Vent Max Temp %d < %f Temp, temperature too hot... \n",max_temp,temp);
                     
             }
             else if(min_temp > temp){
                     servo_state = CLOSE;
-                    Serial.println("Closing Vent, temperature too cold...");
+                    Serial.printf("\nClosing Vent Min Temp %d > %f Temp, temperature too cold...\n",min_temp,temp);
             }
             else{ //Temperature in range
                 if((min_humid < hum) && (hum < max_humid) ){
@@ -51,13 +54,16 @@ void device_logic(void * pvParameters){  //TODO:
             }
         }
 
+        //Serial.println("Servo Handle");
+        servo_handle();
+
         vTaskDelay(DEVICE_LOGIC_DELAY);
 
     }
 }
     
 void read_variable_state(){
-        file.begin("device_state");
+        file.begin("device_config");
         max_temp = file.getInt("max_temp",max_temp);
         min_temp = file.getInt("min_temp",min_temp);
         max_humid = file.getInt("max_humid",max_humid);
