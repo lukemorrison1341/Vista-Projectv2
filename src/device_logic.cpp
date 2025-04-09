@@ -12,7 +12,7 @@ void device_logic(void * pvParameters){  //TODO:
         //Serial.println("DEVICE LOGIC TASK");
         //if(!sensors_configured) return;
         read_variable_state();
-
+        
         if(force_state == FORCE_DEFAULT){ //Not enforcing open/close
 
             if(eco_mode){//Eco Mode

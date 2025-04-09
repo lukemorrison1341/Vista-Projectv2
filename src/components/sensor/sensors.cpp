@@ -6,7 +6,8 @@ float hum = 0.0f;
 boolean sensors_configured = false;
 TwoWire TempWire = TwoWire(1);
 TwoWire HumWire = TwoWire(0);
-
+boolean sensors_read = false;
+unsigned int pir_times_read = 0;
 boolean get_pir(){
     return digitalRead(PIR_INPUT) == HIGH ? true : false;
 }
@@ -103,6 +104,7 @@ void read_sensors(void * pvParameters){
         Serial.printf("Reading PIR Sensor: %d\n",pir);
         temp = read_temp();
         hum = read_humid();
+        sensors_read=true;
         vTaskDelay(SENSOR_DELAY); 
     }
 }

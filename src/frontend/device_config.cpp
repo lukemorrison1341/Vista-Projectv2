@@ -13,7 +13,7 @@ void handleDeviceConfigRequest(){ //both POST and GET allowed (FRONTEND)
         server.sendHeader("Access-Control-Allow-Origin", "*");
         server.sendHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-        server.send(204);  // ✅ 204 No Content oreflight
+        server.send(204);  
         return;
     }
 

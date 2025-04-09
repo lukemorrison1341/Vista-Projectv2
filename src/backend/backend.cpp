@@ -138,7 +138,6 @@ void send_pir_data(){ //TODO: Get rid of this endpoint - just have one endpoint 
 }
 
 void send_heartbeat(){
-    //WiFi.begin();
     static String username = "UNINITIALIZED";
     static boolean file_read = false;
     if(WiFi.status() == WL_CONNECTED){

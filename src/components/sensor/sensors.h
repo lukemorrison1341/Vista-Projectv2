@@ -26,7 +26,7 @@ extern TaskHandle_t sensor_read_task;
 extern TwoWire TempWire; 
 extern TwoWire HumWire;
 extern boolean sensors_configured;
-
+extern boolean sensors_read;
 void config_pir();
 void config_temp();
 void config_humid();

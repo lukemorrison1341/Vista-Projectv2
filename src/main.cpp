@@ -28,8 +28,6 @@ bool my_idle_hook_cb() {
 
 void setup() {
   pinMode(LED_PIN,OUTPUT);
-
-  
   Serial.begin(115200);
   if (!LittleFS.begin()) {
     Serial.println("Failed to initialize LittleFS!");
@@ -66,13 +64,15 @@ void setup() {
      
       
       initialize_device();
+      send_ip(); //responsible for also registering the username and password so, is needed
       get_config();
-      send_ip();
+      
       
       xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 15, &sensor_read_task); //Read sensors periodically
       xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,15,&frontend_handle_task);
       xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
-
+      vTaskDelay(1000); //Wait because it keeps reading 0 temperature value
+      while(!sensors_read) //BLOCKING, must at least finish attempting to read the values of sensors for the first time before deciding to open/close
       xTaskCreate(device_logic, "Device Logic Task",16384,NULL,13,&device_logic_task);
       //xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,configMAX_PRIORITIES-1,&servo_handle_task);
       
@@ -82,7 +82,7 @@ void setup() {
 
 
 
-void handle_server(void * pvParameters){ //FreeRTOS task
+void handle_server(void * pvParameters){ //FreeRTOS task for frontend
   while(1){
       server.handleClient();
   }
