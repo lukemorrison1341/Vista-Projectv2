@@ -1,6 +1,7 @@
 #include "servo.h"
 enum SERVO_STATE servo_state = OPEN;
 enum VENT_STATE vent_state = VENT_OPEN;
+enum FORCE_STATE force_state = FORCE_DEFAULT;
 boolean servo_configured = false;
 void stop_spin(){
   //Serial.println("Stopping Servo...");
@@ -36,7 +37,6 @@ void servo_handle(){
         config_servo();
         servo_configured=true;
     }
-   
       vTaskDelay(SERVO_RESPONSE_TIME);
         if(servo_state == OPEN){
 

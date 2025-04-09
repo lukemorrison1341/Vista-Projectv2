@@ -293,8 +293,9 @@ void get_config(){ //make this a task
                     max_humid = doc["max_humidity"];
                     bool motion_enabled = doc["motion_detection_enabled"]; //TODO: Do something with this
                     eco_mode = doc["eco_mode_enabled"];
+                    force_state = doc["vent_state"] == "default" ? FORCE_DEFAULT : doc["vent_state"] == "force_open" ? FORCE_OPEN : FORCE_CLOSE;
 
-                    Serial.printf("\nMIN TEMP %d MAX TEMP %d MIN HUMID %d MAX HUMID %d (before updating file)\n",min_temp,max_temp,min_humid,max_humid);
+                    Serial.printf("\nMIN TEMP %d MAX TEMP %d MIN HUMID %d MAX HUMID %d (before updating file)\n  FORCE STATE %d",min_temp,max_temp,min_humid,max_humid,force_state);
                     updateDeviceConfig(min_temp,max_temp,min_humid,max_humid, (eco_mode ? "eco mode" : "vacant"), "UNINITIALIZED");
         }
         else{

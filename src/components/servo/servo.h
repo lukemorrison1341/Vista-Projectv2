@@ -28,6 +28,12 @@ enum VENT_STATE{
     VENT_CLOSE = 1
 };
 
+enum FORCE_STATE{
+    FORCE_OPEN = 0,
+    FORCE_CLOSE = 1,
+    FORCE_DEFAULT = 2
+};
+
 void stop_spin(); //Stop the servo from spinning.
 void spin_clockwise();
 void spin_counterclockwise();
@@ -36,6 +42,7 @@ void servo_handle();
 extern boolean servo_configured;
 
 extern enum SERVO_STATE servo_state;
+extern enum FORCE_STATE force_state;
 extern enum VENT_STATE vent_state;
 
 extern TaskHandle_t servo_handle_task;
