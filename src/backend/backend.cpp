@@ -183,13 +183,13 @@ void send_heartbeat(){
 void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEND OTHER DATA OTHER THAN PIR
     while(1)
     {
-        /*static boolean connect_wifi_again = false;
+        static boolean connect_wifi_again = false;
         esp_deregister_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
         Serial.println("Turning off idle mode");
         if(connect_wifi_again){
             connect_backend();
         }
-        */
+        
 
         vTaskDelay(10000); //WIFI Delay
         send_heartbeat();
@@ -199,8 +199,8 @@ void backend_send_task(void * pvParameters){ //TODO: RETRIEVE CONFIGURATION, SEN
         //send_sensor_data();
         send_data();
         Serial.println("Sent Sensor Data");
-        //esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
-        //connect_wifi_again=true;
+        esp_register_freertos_idle_hook_for_cpu(my_idle_hook_cb, 0);
+        connect_wifi_again=true;
         Serial.println("Retrieving device configurations");
         get_config();
         vTaskDelay(BACKEND_SEND_DELAY); 
