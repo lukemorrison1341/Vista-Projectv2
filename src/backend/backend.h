@@ -30,6 +30,7 @@ boolean wifi_connect();
 extern const String serverURI;
 extern TaskHandle_t ip_send_task;
 extern TaskHandle_t send_backend_task;
+extern boolean low_power_mode;
 
 
 

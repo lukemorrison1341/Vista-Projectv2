@@ -75,6 +75,7 @@ void setup() {
       while(!sensors_read) //BLOCKING, must at least finish attempting to read the values of sensors for the first time before deciding to open/close
       xTaskCreate(device_logic, "Device Logic Task",16384,NULL,13,&device_logic_task);
       //xTaskCreate(servo_handle, "Servo Decision Making Task",16384,NULL,configMAX_PRIORITIES-1,&servo_handle_task);
+      Serial.println("TEST");
       
   }
      
@@ -87,16 +88,11 @@ void handle_server(void * pvParameters){ //FreeRTOS task for frontend
       server.handleClient();
   }
 }
-
-
-
-
 void loop(){
 
   if(connection_type == BACKEND)
   {
-    Serial.println("Setting low power mode");
-     
+    Serial.println("Setting low power mode");  
   }
   while (1) {
       Serial.print("Free Heap: ");

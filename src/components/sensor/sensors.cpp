@@ -7,7 +7,8 @@ boolean sensors_configured = false;
 TwoWire TempWire = TwoWire(1);
 TwoWire HumWire = TwoWire(0);
 boolean sensors_read = false;
-unsigned int pir_times_read = 0;
+unsigned int pir_times_read_high = 0;
+unsigned int pir_times_read_low = 0;
 boolean get_pir(){
     return digitalRead(PIR_INPUT) == HIGH ? true : false;
 }
@@ -100,15 +101,21 @@ void read_sensors(void * pvParameters){
     while(1){
         if(!sensors_configured) return;
         Serial.println("Reading Sensors");
-        pir_times_read += get_pir();
-       
-        if(pir_times_read > PIR_SENSISITIVITY_COUNT){
+        boolean pir_value = get_pir();
+        pir_times_read_high += pir_value;
+        pir_times_read_low += pir_value == 0 ? 1 : 0;
+        if(pir_times_read_high > PIR_SENSISITIVITY_COUNT){
           Serial.println("PIR sensor read enough times for motion to be detected.");
-          pir_times_read = 0;
+          pir_times_read_high = 0;
           pir=1; //Send motion detected signal
         }
-        else pir=0;
-        Serial.printf("Reading PIR Sensor: %d\n",pir);
+        else if (pir_times_read_low > PIR_SENSISITIVITY_COUNT){
+          Serial.println("PIR sensor read no motion enough times for no motion to be detected.");
+          pir_times_read_low=0;
+          pir=0;
+    
+        }
+        Serial.printf("Reading PIR Sensor: %d\n",pir_value);
         temp = read_temp();
         hum = read_humid();
         sensors_read=true;

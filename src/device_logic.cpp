@@ -7,11 +7,11 @@ void device_logic(void * pvParameters){  //TODO:
         Implemented Algorithm from Senior Design Software Decision Tree
     */
 
-    
+    read_variable_state();
     while(1){
         //Serial.println("DEVICE LOGIC TASK");
         //if(!sensors_configured) return;
-        read_variable_state();
+        
         
         if(force_state == FORCE_DEFAULT){ //Not enforcing open/close
 

@@ -2,6 +2,7 @@
 #ifndef SERVO_H
 #define SERVO_H
 #include <Arduino.h>
+#include "../../backend/backend.h"
 #define SERVO_PIN       27        // PWM output pin
 #define SERVO_CHANNEL   0         // LEDC PWM channel (0-15 available)
 #define SERVO_FREQ      50        // Frequency in Hz (50 Hz -> 20 ms period)

@@ -37,6 +37,7 @@ void servo_handle(){
         config_servo();
         servo_configured=true;
     }
+      
       vTaskDelay(SERVO_RESPONSE_TIME);
         if(servo_state == OPEN){
 
