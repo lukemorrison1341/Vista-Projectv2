@@ -183,6 +183,8 @@ void send_heartbeat(){
 void backend_send_task(void * pvParameters){ 
     while(1)
     {
+        read_sensors();
+        vTaskDelay(SENSOR_SEND_DELAY);
         send_heartbeat();
         Serial.println("Sent Heartbeat");
         send_ip();
@@ -191,7 +193,6 @@ void backend_send_task(void * pvParameters){
         Serial.println("Sent Sensor Data");
         Serial.println("Retrieving device configurations");
         get_config();
-       
         vTaskDelay(BACKEND_SEND_DELAY);     
     }
 
