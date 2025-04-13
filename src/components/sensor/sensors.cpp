@@ -9,12 +9,27 @@ TwoWire HumWire = TwoWire(0);
 boolean sensors_read = false;
 unsigned int pir_times_read_high = 0;
 unsigned int pir_times_read_low = 0;
+
+int adcRaw = 0;
+float voltage = 0.0;
+
 boolean get_pir(){
-    return digitalRead(PIR_INPUT) == HIGH ? true : false;
+    adcRaw = analogRead(PIR_PIN);
+    voltage = (adcRaw / 4095.0) * VREF;
+    if(voltage > MOTION_VOLTAGE_MAX || voltage < MOTION_VOLTAGE_MIN){
+      Serial.println("Motion detected");
+    return true;
+  }
+  else{
+      Serial.println("No motion");
+    return false;
+  }
 }
 void config_pir(){
     //pinMode(PIR_INPUT,INPUT);
     Serial.println("PIR Sensor configured");
+
+     analogReadResolution(12);
 }
 
 void config_temp(){
