@@ -101,10 +101,10 @@ void read_sensors(void * pvParameters){
     while(1){
         if(!sensors_configured) return;
         Serial.println("Reading Sensors");
-        boolean pir_value = get_pir();
-        pir_times_read_high += pir_value;
-        pir_times_read_low += pir_value == 0 ? 1 : 0;
-        if(pir_times_read_high > PIR_SENSISITIVITY_COUNT){
+        pir = get_pir();
+       // pir_times_read_high += pir_value;
+        //pir_times_read_low += pir_value == 0 ? 1 : 0;
+        /*if(pir_times_read_high > PIR_SENSISITIVITY_COUNT){
           Serial.println("PIR sensor read enough times for motion to be detected.");
           pir_times_read_high = 0;
           pir=1; //Send motion detected signal
@@ -115,7 +115,8 @@ void read_sensors(void * pvParameters){
           pir=0;
     
         }
-        Serial.printf("Reading PIR Sensor: %d\n",pir_value);
+        */
+        Serial.printf("Reading PIR Sensor: %d\n",pir);
         temp = read_temp();
         hum = read_humid();
         sensors_read=true;

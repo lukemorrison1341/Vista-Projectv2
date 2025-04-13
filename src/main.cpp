@@ -68,7 +68,7 @@ void setup() {
       get_config();
       
       
-      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, 15, &sensor_read_task); //Read sensors periodically
+      xTaskCreate(read_sensors, "Sensor Read Task", 8192, NULL, configMAX_PRIORITIES-1, &sensor_read_task); //Read sensors periodically
       xTaskCreate(handle_frontend_server, "Frontend Server",16384,NULL,15,&frontend_handle_task);
       xTaskCreate(backend_send_task, "Backend Send Data Task",16384,NULL,1,&send_backend_task);
       vTaskDelay(1000); //Wait because it keeps reading 0 temperature value

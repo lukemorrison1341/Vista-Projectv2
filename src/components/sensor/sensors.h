@@ -14,7 +14,7 @@ Purpose: Read the state of each sensor, act as a spot to hold the current values
 #define HIH8120_ADDR 0x27
 #define MLX90614_ADDR 0x5A
 
-#define SENSOR_DELAY 10000 //Time between each sensor is read
+#define SENSOR_DELAY 1000 //Time between each sensor is read
 #define PIR_SENSISITIVITY_COUNT 3
 
 #include <Arduino.h>

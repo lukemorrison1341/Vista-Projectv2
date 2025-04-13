@@ -1,22 +1,22 @@
 #include "device_logic.h"
 
-
+boolean send_new_config = false;
 
 void device_logic(void * pvParameters){  //TODO: 
     /*
         Implemented Algorithm from Senior Design Software Decision Tree
     */
 
-    read_variable_state();
+    
     while(1){
         //Serial.println("DEVICE LOGIC TASK");
         //if(!sensors_configured) return;
-        
+        read_variable_state();
         
         if(force_state == FORCE_DEFAULT){ //Not enforcing open/close
 
             if(eco_mode){//Eco Mode
-                if(!pir){ //No motion detected (INCLUDE PIR + MOTION DETECTION ENABLED)
+                if(!pir){ 
                     if(max_temp < temp){
                         Serial.printf("\nOpening Vent Max Temp %d < %f Temp, temperature too hot... \n",max_temp,temp);
                         servo_state = OPEN;
@@ -32,6 +32,7 @@ void device_logic(void * pvParameters){  //TODO:
                 }
                 else{//Motion Detected
                     Serial.println("Motion detected, not doing anything...");
+                   
                     servo_state = DO_NOTHING;
                 }
             } else { //Vacant mode
@@ -46,11 +47,11 @@ void device_logic(void * pvParameters){  //TODO:
                 }
                 else{ //Temperature in range
                     if((min_humid < hum) && (hum < max_humid) ){
-                        //Serial.println("Closing Vent, humidity in range... ");
+                        Serial.println("Closing Vent, humidity in range... ");
                         servo_state = CLOSE;
                     }
                     else{
-                        //Serial.printf("Opening Vent, humidity out of range %f...",hum);
+                        Serial.printf("Opening Vent, humidity out of range %f...",hum);
                         servo_state = OPEN;
                     }
                 }

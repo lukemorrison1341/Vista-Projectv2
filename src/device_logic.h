@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include "frontend/device_config.h"
 #include "components/servo/servo.h"
-#define DEVICE_LOGIC_DELAY 1000
+#define DEVICE_LOGIC_DELAY 10000
 void device_logic(void * pvParameters);
 void read_variable_state();
 extern TaskHandle_t device_logic_task;
@@ -17,5 +17,5 @@ enum CONNECTION_TYPE {
     BOTH
 };
 extern enum CONNECTION_TYPE connection_type;
-
+extern boolean send_new_config;
 #endif
