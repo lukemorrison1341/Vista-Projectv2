@@ -136,7 +136,7 @@ void handlePIRRequest() { //I might not be using this anymore
         return;
       }
     Serial.printf("Received PIR GET Request\n");
-
+    Serial.println("TEST");
     StaticJsonDocument<256> jsonResponse;
     jsonResponse["pir"] = get_pir(); 
 
