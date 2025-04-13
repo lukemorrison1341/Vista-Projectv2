@@ -14,8 +14,15 @@ int adcRaw = 0;
 float voltage = 0.0;
 
 boolean get_pir(){
+
+    
     adcRaw = analogRead(PIR_PIN);
     voltage = (adcRaw / 4095.0) * VREF;
+
+    Serial.print("ADC Raw: ");
+    Serial.print(adcRaw);
+    Serial.print(" | Voltage: ");
+    Serial.println(voltage, 3);
     if(voltage > MOTION_VOLTAGE_MAX || voltage < MOTION_VOLTAGE_MIN){
       Serial.println("Motion detected");
     return true;
