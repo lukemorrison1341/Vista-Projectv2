@@ -25,10 +25,22 @@ boolean get_pir(){
     Serial.println(voltage, 3);
     if(voltage > MOTION_VOLTAGE_MAX || voltage < MOTION_VOLTAGE_MIN){
       Serial.println("Motion detected");
-    return true;
+      pir_times_read_high++;
+      if(pir_times_read_high > PIR_SENSISITIVITY_COUNT){
+        pir_times_read_high = 0;
+        pir_times_read_low = 0;
+        return true;
+      }
+    return false;
   }
   else{
       Serial.println("No motion");
+      pir_times_read_low++;
+      if(pir_times_read_low > PIR_SENSISITIVITY_COUNT){
+        pir_times_read_low = 0;
+        pir_times_read_high = 0;
+        Serial.println("Read low enough times to send no motion");
+      }
     return false;
   }
 }

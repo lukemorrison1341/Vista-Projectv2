@@ -187,14 +187,12 @@ void backend_send_task(void * pvParameters){
         send_data();
         Serial.println("Sent Sensor Data");
         Serial.println("Retrieving device configurations");
-
         if(send_new_config){
             Serial.println("Sending new config");
             send_config();
             send_new_config=false;
             vTaskDelay(BACKEND_SEND_DELAY);
         }
-
         get_config();
         vTaskDelay(BACKEND_SEND_DELAY);     
     }
@@ -223,7 +221,6 @@ void send_data(){
                 http.addHeader("Content-Type", "application/json");
                 
     
-
                 String jsonPayload = "{";
                 jsonPayload += "\"username\":\"" + username + "\",";
                 jsonPayload += "\"temperature\":" + String(temp) + ",";

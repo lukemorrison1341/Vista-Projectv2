@@ -9,14 +9,14 @@ void device_logic(void * pvParameters){  //TODO:
 
     
     while(1){
-        //Serial.println("DEVICE LOGIC TASK");
-        //if(!sensors_configured) return;
+
+        //if(temp == 0 || hum == 0) continue;
         read_variable_state();
-        
+        vTaskDelay(DEVICE_LOGIC_DELAY);
         if(force_state == FORCE_DEFAULT){ //Not enforcing open/close
 
             if(eco_mode){//Eco Mode
-                if(!pir){ 
+                if(pir){ 
                     if(max_temp < temp){
                         Serial.printf("\nOpening Vent Max Temp %d < %f Temp, temperature too hot... \n",max_temp,temp);
                         servo_state = OPEN;
@@ -30,9 +30,27 @@ void device_logic(void * pvParameters){  //TODO:
                         servo_state = DO_NOTHING;
                     }
                 }
-                else{//Motion Detected
-                    Serial.println("Motion detected, not doing anything...");
-                   
+                else{//No Motion Detected but vacant mode
+                    Serial.println("No motion detected, vacant mode");
+                     if(max_temp < temp){
+                        servo_state = OPEN;
+                        Serial.printf("\nOpening Vent Max Temp %d < %f Temp, temperature too hot... \n",max_temp,temp);
+                        
+                }
+                else if(min_temp > temp){
+                        servo_state = CLOSE;
+                        Serial.printf("\nClosing Vent Min Temp %d > %f Temp, temperature too cold...\n",min_temp,temp);
+                }
+                else{ //Temperature in range
+                    if((min_humid < hum) && (hum < max_humid) ){
+                        Serial.println("Closing Vent, humidity in range... ");
+                        servo_state = CLOSE;
+                    }
+                    else{
+                        Serial.printf("Opening Vent, humidity out of range %f...",hum);
+                        servo_state = OPEN;
+                    }
+                }
                     servo_state = DO_NOTHING;
                 }
             } else { //Vacant mode
@@ -69,7 +87,6 @@ void device_logic(void * pvParameters){  //TODO:
 
             //Serial.println("Servo Handle");
             servo_handle();
-
             vTaskDelay(DEVICE_LOGIC_DELAY);
         }     
     }
