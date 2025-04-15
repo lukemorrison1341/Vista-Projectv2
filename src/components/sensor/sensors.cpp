@@ -7,9 +7,7 @@ boolean sensors_configured = false;
 TwoWire TempWire = TwoWire(1);
 TwoWire HumWire = TwoWire(0);
 boolean sensors_read = false;
-unsigned int pir_times_read_high = 0;
-unsigned int pir_times_read_low = 0;
-
+signed int pir_sensitivity = 0;
 int adcRaw = 0;
 float voltage = 0.0;
 
@@ -25,24 +23,18 @@ boolean get_pir(){
     Serial.println(voltage, 3);
     if(voltage > MOTION_VOLTAGE_MAX || voltage < MOTION_VOLTAGE_MIN){
       Serial.println("Motion detected");
-      pir_times_read_high++;
-      if(pir_times_read_high > PIR_SENSISITIVITY_COUNT){
-        pir_times_read_high = 0;
-        pir_times_read_low = 0;
-        return true;
-      }
-    return false;
+      pir_sensitivity = pir_sensitivity < 3 ? pir_sensitivity++ : pir_sensitivity;
+     
+      
   }
   else{
       Serial.println("No motion");
-      pir_times_read_low++;
-      if(pir_times_read_low > PIR_SENSISITIVITY_COUNT){
-        pir_times_read_low = 0;
-        pir_times_read_high = 0;
-        Serial.println("Read low enough times to send no motion");
-      }
+      pir_sensitivity = pir_sensitivity > -3 ? pir_sensitivity-- : pir_sensitivity;
+  }
+  if(pir_sensitivity > -1){
     return false;
   }
+  return true;
 }
 void config_pir(){
     //pinMode(PIR_INPUT,INPUT);
