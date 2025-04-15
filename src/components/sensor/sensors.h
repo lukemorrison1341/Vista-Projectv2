@@ -11,7 +11,7 @@ Purpose: Read the state of each sensor, act as a spot to hold the current values
 #define HUMID_SCL 21
 
 #define PIR_PIN 32
-#define MOTION_VOLTAGE_MAX 0.3
+#define MOTION_VOLTAGE_MAX 0.33
 #define MOTION_VOLTAGE_MIN 0.2
 #define VREF 3.3
 

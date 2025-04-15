@@ -23,15 +23,16 @@ boolean get_pir(){
     Serial.println(voltage, 3);
     if(voltage > MOTION_VOLTAGE_MAX || voltage < MOTION_VOLTAGE_MIN){
       Serial.println("Motion detected");
-      pir_sensitivity = pir_sensitivity < 3 ? pir_sensitivity++ : pir_sensitivity;
+      if(pir_sensitivity < 3) pir_sensitivity++;
      
       
   }
   else{
       Serial.println("No motion");
-      pir_sensitivity = pir_sensitivity > -3 ? pir_sensitivity-- : pir_sensitivity;
+      if(pir_sensitivity < -1) pir_sensitivity--;
   }
-  if(pir_sensitivity > -1){
+  Serial.printf("%d\n",pir_sensitivity);
+  if(pir_sensitivity < 0){
     return false;
   }
   return true;
